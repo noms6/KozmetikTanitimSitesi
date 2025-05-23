@@ -1,0 +1,52 @@
+﻿@model KozmetikTanitimSite.Models.Product
+
+@{
+    ViewBag.Title = "Ürünü Sil";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-danger mb-4">Ürünü Sil</h2>
+
+<div class="alert alert-warning">
+    <h4>Bu ürünü silmek istediğinizden emin misiniz?</h4>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="row g-0">
+        <div class="col-md-4">
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="@Model.ImageUrl" class="img-fluid rounded-start" alt="@Model.Name" />
+            }
+            else
+            {
+                <div class="p-5 text-muted text-center">Görsel Yok</div>
+            }
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+                <h5 class="card-title">@Model.Name</h5>
+                <p class="card-text"><strong>Açıklama:</strong> @Model.Description</p>
+                <p class="card-text"><strong>Fiyat:</strong> @Model.Price ₺</p>
+                <p class="card-text">
+                    <strong>Öne Çıkan:</strong>
+                    @if (Model.IsFeatured)
+                    {
+                        <span class="badge bg-success">Evet</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Hayır</span>
+                    }
+                </p>
+
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="submit" value="Sil" class="btn btn-danger" />
+                    @Html.ActionLink("İptal", "Index", null, new { @class = "btn btn-secondary ms-2" })
+                }
+            </div>
+        </div>
+    </div>
+</div>

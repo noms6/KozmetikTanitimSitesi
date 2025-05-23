@@ -1,0 +1,48 @@
+﻿@model List<KozmetikTanitimSite.Models.CartItem>
+
+<div class="container mt-5">
+    <h2>Sepetiniz</h2>
+
+    @foreach (var item in Model)
+    {
+        <div class="card mb-3">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="@item.Product.ImageUrl" class="img-fluid rounded-start" alt="@item.Product.Name">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Product.Name</h5>
+                        <p class="card-text">@item.Product.Price.ToString("C2")</p>
+                        <div class="input-group" style="max-width: 150px;">
+                            <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity(@item.ProductId, -1)">-</button>
+                            <input type="text" class="form-control text-center" value="@item.Quantity">
+                            <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity(@item.ProductId, 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <a class="btn btn-primary" href="@Url.Action("Checkout", "Order")">Satın Al</a>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            Satın almak için lütfen <a href="@Url.Action("Login", "Account")">giriş yapın</a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+    function updateQuantity(productId, change) {
+        // AJAX ile miktar güncelleme
+        fetch(`/Cart/UpdateQuantity?productId=${productId}&change=${change}`)
+            .then(response => window.location.reload());
+    }
+    </script>
+}
