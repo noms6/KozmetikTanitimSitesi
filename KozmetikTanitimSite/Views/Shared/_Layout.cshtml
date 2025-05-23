@@ -5,60 +5,49 @@
     <title>@ViewBag.Title - Kozmetik Tanıtım</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #fff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #333;
         }
 
         .navbar-brand {
             font-weight: bold;
-            color: #007bff !important;
+            color: #0d6efd !important;
         }
 
         .nav-link {
-            color: #555 !important;
+            color: #444 !important;
             font-weight: 500;
-            transition: color 0.2s ease-in-out;
+            transition: 0.2s ease;
         }
 
-            .nav-link:hover {
-                color: #007bff !important;
-            }
-
-        .container {
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        h1, h2, h3, h4, h5 {
-            font-weight: 600;
-            margin-bottom: 20px;
+        .nav-link:hover {
+            color: #0d6efd !important;
         }
 
         footer {
-            margin-top: 50px;
+            margin-top: 60px;
             padding: 20px 0;
-            background-color: #eee;
+            background-color: #f1f1f1;
             text-align: center;
             font-size: 14px;
             color: #666;
         }
 
-        button.nav-link {
-            border: none;
-            background: none;
+        .search-bar {
+            width: 300px;
         }
-            
-        button.nav-link.text-danger:hover {
-                color: #b30000 !important; /* Daha koyu kırmızı hover efekti */
-                text-decoration: underline;
-            }
+
+        
+        }
     </style>
 </head>
 <body>
 
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
             <a class="navbar-brand" href="@Url.Action("Index", "Home")">Kozmetik Tanıtım</a>
@@ -66,70 +55,81 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <form method="get" action="@Url.Action("Arama", "Product")" class="d-flex" role="search">
-                <input class="form-control me-2" type="search" name="query" placeholder="Ürün ara..." aria-label="Search" />
-                <button class="btn btn-outline-success" type="submit">Ara</button>
-            </form>
-
-
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
                         <a class="nav-link" href="@Url.Action("Index", "Home")">Ana Sayfa</a>
                     </li>
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                    {
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Index", "Product")">Ürün Listesi</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Create", "Product")">Yeni Ürün Ekle</a>
+                    </li>
+                    }
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("User"))
+                    {
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("List", "Product")">Ürünler</a>
+                    </li>
+                    }
+                </ul>
 
+                <!-- Search bar -->
+                @using (Html.BeginForm("Arama", "Home", FormMethod.Get, new { @class = "d-flex search-bar", role = "search" }))
+                {
+                <input class="form-control me-2" type="search" name="query" placeholder="Ürün ara..." aria-label="Search" />
+                <button class="btn btn-outline-primary" type="submit">Ara</button>
+                }
+
+                <!-- Sepet ve Kullanıcı -->
+                <ul class="navbar-nav ms-3">
                     @if (User.Identity.IsAuthenticated)
                     {
-                        if (User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Index", "Product")">Ürün Listesi</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Create", "Product")">Yeni Ürün Ekle</a>
-                            </li>
-                        }
-
-                        if (User.IsInRole("User"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("List", "Product")">Ürünler</a>
-                            </li>
-                        }
-
-                        <li class="nav-item">
-                            @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "d-inline" }))
+                    <li class="nav-item">
+                        @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "d-inline" }))
                             {
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-link nav-link text-danger" style="cursor: pointer;">
-                                    Çıkış Yap
-                                </button>
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-link nav-link text-danger">
+                            Çıkış Yap
+                        </button>
                             }
-                        </li>
+                    </li>
                     }
                     else
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Login", "Account")">Giriş</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Register", "Account")">Kayıt Ol</a>
-                        </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Login", "Account")">Giriş</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Register", "Account")">Kayıt Ol</a>
+                    </li>
                     }
+
+                    <li class="nav-item position-relative">
+                        <a class="nav-link" href="@Url.Action("Cart", "Product")">
+                            <i class="bi bi-cart-fill"></i> Sepet
+                            <span class="badge bg-danger text-white position-absolute top-0 start-100 translate-middle" id="cart-count">0</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container">
+    <!-- Sayfa İçeriği -->
+    <div class="container mt-4">
         @RenderBody()
     </div>
 
+    <!-- Footer -->
     <footer>
         <p>© @DateTime.Now.Year Kozmetik Tanıtım Sitesi - Tüm hakları saklıdır.</p>
     </footer>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     @RenderSection("Scripts", required: false)
 </body>

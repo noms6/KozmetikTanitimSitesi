@@ -21,6 +21,29 @@ namespace KozmetikTanitimSite.Data
 
         public DbSet<Product> Products { get; set; }
         public DbSet<SliderImage> SliderImages { get; set; }
-        public DbSet<CartItem> CartItems { get; set; }
+        
+        public DbSet<Address> Addresses { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<Return> Returns { get; set; }
+        public DbSet<Sepet> Sepetler { get; set; } 
+
+        // Diğer DbSet'ler...
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            // İlişkileri tanımla
+            modelBuilder.Entity<Order>()
+                .HasRequired(o => o.User)
+                .WithMany()
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<OrderDetail>()
+                .HasRequired(od => od.Order)
+                .WithMany(o => o.OrderDetails)
+                .WillCascadeOnDelete(true);
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

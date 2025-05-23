@@ -1,0 +1,98 @@
+﻿@model List<KozmetikTanitimSite.Controllers.CartItemViewModel>
+
+@{
+    ViewBag.Title = "Sepetim";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Sepetiniz</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">Sepetiniz boş.</div>
+    }
+    else
+    {
+        <table class="table table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th>Ürün</th>
+                    <th>Adet</th>
+                    <th>Birim Fiyat</th>
+                    <th>Toplam Fiyat</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr data-id="@item.Product.Id">
+                        <td>
+                            <img src="@item.Product.ImageUrl" alt="@item.Product.Name" style="width: 80px; height: 80px; object-fit: cover;" class="me-2" />
+                            @item.Product.Name
+                        </td>
+                        <td style="width: 130px;">
+                            <div class="input-group">
+                                <button class="btn btn-outline-secondary decrement">-</button>
+                                <input type="text" class="form-control text-center quantity-input" value="@item.Quantity" readonly />
+                                <button class="btn btn-outline-secondary increment">+</button>
+                            </div>
+                        </td>
+                        <td>@item.Product.Price.ToString("C")</td>
+                        <td>@(item.Product.Price * item.Quantity).ToString("C")</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm remove-item">Sil</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="text-end fw-bold fs-4">
+            Toplam: @Model.Sum(i => i.Product.Price * i.Quantity).ToString("C")
+        </div>
+
+        <div class="text-end mt-3">
+            <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Alışverişe Devam Et</a>
+            <button id="checkout-btn" class="btn btn-success">Ödeme</button>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Sepet içi adet artırma-azaltma ve silme işlemleri
+        document.querySelectorAll('tbody tr').forEach(row => {
+            const productId = row.getAttribute('data-id');
+
+            row.querySelector('.increment').addEventListener('click', () => updateQuantity(productId, 1));
+            row.querySelector('.decrement').addEventListener('click', () => updateQuantity(productId, -1));
+            row.querySelector('.remove-item').addEventListener('click', () => removeItem(productId));
+        });
+
+        function updateQuantity(productId, delta) {
+            const row = document.querySelector(`tr[data-id="${productId}"]`);
+            const input = row.querySelector('.quantity-input');
+            let currentQty = parseInt(input.value);
+            let newQty = currentQty + delta;
+
+            if (newQty < 1) return;
+
+            $.post('@Url.Action("UpdateCart")', { productId: productId, quantity: newQty }, function (res) {
+                if (res.success) {
+                    input.value = newQty;
+                    location.reload(); // Basit yöntem, iyileştirilebilir
+                }
+            });
+        }
+
+        function removeItem(productId) {
+            $.post('@Url.Action("UpdateCart")', { productId: productId, quantity: 0 }, function (res) {
+                if (res.success) {
+                    location.reload();
+                }
+            });
+        }
+    </script>
+}

@@ -1,0 +1,87 @@
+﻿@model KozmetikTanitimSite.Models.Product
+
+@{
+    ViewBag.Title = "Ürün Detayları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <div class="card shadow-lg rounded-4 overflow-hidden">
+        <div class="row g-0">
+            <div class="col-md-6 text-center bg-light d-flex align-items-center justify-content-center">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid p-3" style="max-height: 450px; object-fit: contain;" />
+                }
+                else
+                {
+                    <div class="p-5 text-muted">Görsel mevcut değil</div>
+                }
+            </div>
+            <div class="col-md-6 p-4 d-flex flex-column justify-content-center">
+                <h2 class="text-primary mb-3">@Model.Name</h2>
+                <p class="fs-5 text-muted"><strong>Açıklama:</strong> @Model.Description</p>
+                <p class="fs-5 text-dark"><strong>Fiyat:</strong> <span class="text-success fw-bold">@Model.Price ₺</span></p>
+                <p>
+                    <strong>Öne Çıkan:</strong>
+                    @if (Model.IsFeatured)
+                    {
+                        <span class="badge bg-success">Evet</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Hayır</span>
+                    }
+                </p>
+
+                <div id="cart-controls" class="mt-4">
+                    <button class="btn btn-success add-to-cart-btn" data-id="@Model.Id">Sepete Ekle</button>
+                </div>
+
+                <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary mt-3">← Geri Dön</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let cart = {};
+
+        const container = document.getElementById("cart-controls");
+        const productId = "@Model.Id";
+
+        container.addEventListener('click', function (e) {
+            if (e.target.classList.contains('add-to-cart-btn')) {
+                cart[productId] = 1;
+                container.innerHTML = `
+                    <div class="input-group w-50">
+                        <button class="btn btn-outline-secondary decrement">-</button>
+                        <input type="text" class="form-control text-center" value="1" readonly />
+                        <button class="btn btn-outline-secondary increment">+</button>
+                    </div>`;
+                updateCartCount();
+            }
+
+            if (e.target.classList.contains('increment')) {
+                cart[productId]++;
+                container.querySelector('input').value = cart[productId];
+                updateCartCount();
+            }
+
+            if (e.target.classList.contains('decrement')) {
+                if (cart[productId] > 1) {
+                    cart[productId]--;
+                    container.querySelector('input').value = cart[productId];
+                }
+                updateCartCount();
+            }
+        });
+
+        function updateCartCount() {
+            const total = Object.values(cart).reduce((a, b) => a + b, 0);
+            const badge = document.getElementById('cart-count');
+            if (badge) badge.textContent = total;
+        }
+    </script>
+}
